@@ -1,0 +1,4 @@
+#!/bin/bash
+
+chuck --loop Sampler.ck &
+./ssq $1

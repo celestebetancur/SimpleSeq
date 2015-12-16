@@ -1,0 +1,3 @@
+for n in dirt/*
+do echo $(ls $n | wc -l) >> .files
+done
