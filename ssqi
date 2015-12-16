@@ -1,5 +1,9 @@
 #!//bin/bash
 
+rm .files .SSQtemp.ck
+./dirt/.countFiles
+ls dirt > .keywords
 chuck --loop Sampler.ck &
-./ssqc
+./ssq
+rm .SSQtemp.ck
 
