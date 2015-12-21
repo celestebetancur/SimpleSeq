@@ -93,20 +93,20 @@ def lexAnalizer(arg):
                 table = (word,num,patternChuck[:-1])
                 Table.append((lexOutput,table))
             else:
-                if len(word) != 0:
-                    table = (word,num,patternChuck[:-1])
-                    Table.append((lexOutput,table))
-                else:
-                    pass
+                table = (word,num,patternChuck[:-1])
+                Table.append((lexOutput,table))
+
             lexOutput = ""
             word = ""
             numS = ""
             num_ = False
             num = 1
             patternChuck = ""
-        else:
-            print "syntax error, Don't worry SimpleSeq will take care of it"
-    return Table
+    if len(Table) == 0:
+        return 0
+    else:
+        return Table
+
 
 def parser(lexIn,table):
     sample,num,pattern = table
@@ -122,7 +122,7 @@ def parser(lexIn,table):
         elif lexIn == "sample assignC pattern " or lexIn == "choose sample assignC pattern " or lexIn == "sample assignC choose pattern ":
             return (".file(\"%s\",\"%i\");\n" %(sample,num),".soundC([%s]);\n" %pattern)
         else:
-            print "syntax error"
+            print "Syntax error"
             return 0,0
             
 
@@ -175,7 +175,7 @@ if len(sys.argv) in range(2,4):
             check = checker(word, listSamples)
             sound, seq = parser(lexIn,table)
             if word not in samples:
-                print "syntax error"
+                print "Syntax error"
             elif num > int(check):
                 print "error: %s has only %s wav files" %(word,check)
             else:
@@ -187,7 +187,8 @@ if len(sys.argv) in range(2,4):
                 outFile.write(header+"\n"+setSample+"\n"+spork+"\n"+time)
                 outFile.close()
 
-else:
+elif len(sys.argv) == 1:
+    call(["clear"])
     while(True):
         arg = raw_input("-> ")
         if arg == "colors":
@@ -198,10 +199,12 @@ else:
                 SSQColors = False
             else:
                 print "wrong input"
-        if arg == "exit":
+        elif arg == "patterns":
+            print patterns
+        elif arg == "exit":
             call(["chuck","--kill"])
             break
-        if arg == "remove":
+        elif arg == "remove":
             call(["chuck","--status"])
             toRemove = raw_input("shred ID: ")
             call(["chuck","-",toRemove])
@@ -211,44 +214,51 @@ else:
             spork = ""
             time = "while(true) ms => now;\n"
             counter = 0
-            for lexIn,table in lexAnalizer(arg):
-                word, num, pattern = table
-                check = checker(word,listSamples)
-                sound, seq = parser(lexIn,table)
-                if sound == 0 or seq == 0:
-                    pass
-                else:
-                    if word not in samples:
-                        if word in colorsString and SSQColors == True:
-                            patterns.append(stoList(pattern))
-                            colorsArray.append("#"+checker(word,colors))
-                            ssqColors(colorsArray,patterns)
-                        else:
-                            if word not in colorsString:
-                                print "syntax error"
-                            else:
-                                print "turn on colors mode by typing: colors"
-                    elif num > int(check):
-                        print "error: %s has only %s wav files" %(word,check)
+            LEX = lexAnalizer(arg)
+            if LEX == 0:
+                print "Syntax error"
+            else:
+                for lexIn,table in LEX:
+                    word, num, pattern = table
+                    check = checker(word,listSamples)
+                    sound, seq = parser(lexIn,table)
+                    if sound == 0 or seq == 0:
+                        pass
                     else:
-                        if SSQColors == True:
-                            patterns.append(stoList(pattern))
-                            colorsArray.append(colorsHX[random.sample(range(0,len(colorsHX)),1)[0]])
-                            ssqColors(colorsArray,patterns)
-                            header = header + "Sampler d%s;\n" %counter
-                            setSample = setSample + "d%s%s" %(counter , sound) 
-                            spork = spork + "spork~d%s%s" %(counter, seq)
-                            counter = counter + 1
-                            outFile = open(".SSQtemp.ck", "w")
-                            outFile.write(header+"\n"+setSample+"\n"+spork+"\n"+time)
-                            outFile.close()
-                            call(["chuck","+",".SSQtemp.ck"])
+                        if word not in samples:
+                            if word in colorsString and SSQColors == True:
+                                patterns.append(stoList(pattern))
+                                colorsArray.append("#"+checker(word,colors))
+                                ssqColors(colorsArray,patterns)
+                            else:
+                                if word not in colorsString:
+                                    print "Syntax error"
+                                else:
+                                    print "turn on colors mode by typing: colors"
+                        elif num > int(check):
+                            print "error: %s has only %s wav files" %(word,check)
                         else:
-                            header = header + "Sampler d%s;\n" %counter
-                            setSample = setSample + "d%s%s" %(counter , sound) 
-                            spork = spork + "spork~d%s%s" %(counter, seq)
-                            counter = counter + 1
-                            outFile = open(".SSQtemp.ck", "w")
-                            outFile.write(header+"\n"+setSample+"\n"+spork+"\n"+time)
-                            outFile.close()
-                            call(["chuck","+",".SSQtemp.ck"])
+                            if SSQColors == True:
+                                patterns.append(stoList(pattern))
+                                colorsArray.append(colorsHX[random.sample(range(0,len(colorsHX)),1)[0]])
+                                ssqColors(colorsArray,patterns)
+                                header = header + "Sampler d%s;\n" %counter
+                                setSample = setSample + "d%s%s" %(counter , sound) 
+                                spork = spork + "spork~d%s%s" %(counter, seq)
+                                counter = counter + 1
+                                outFile = open(".SSQtemp.ck", "w")
+                                outFile.write(header+"\n"+setSample+"\n"+spork+"\n"+time)
+                                outFile.close()
+                                call(["chuck","+",".SSQtemp.ck"])
+                            else:
+                                header = header + "Sampler d%s;\n" %counter
+                                setSample = setSample + "d%s%s" %(counter , sound) 
+                                spork = spork + "spork~d%s%s" %(counter, seq)
+                                counter = counter + 1
+                                outFile = open(".SSQtemp.ck", "w")
+                                outFile.write(header+"\n"+setSample+"\n"+spork+"\n"+time)
+                                outFile.close()
+                                call(["chuck","+",".SSQtemp.ck"])
+
+else:
+    print "Wrong number of arguments"
