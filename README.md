@@ -1,4 +1,5 @@
-# SimpleSeq 0.1.3
+# SimpleSeq 0.1.4
+## extremely unstable 
 ### (from SimpleCode 0.1.2)
 ----------------
 
